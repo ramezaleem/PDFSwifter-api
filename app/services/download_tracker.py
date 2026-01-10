@@ -58,5 +58,14 @@ class DownloadTracker:
             payload["file_exists"] = False
         return payload
 
+    def protected_file_paths(self) -> set[str]:
+        """Return file paths that should not be deleted yet (best-effort)."""
+        protected: set[str] = set()
+        with self._lock:
+            for job in self._jobs.values():
+                if job.status in {"pending", "running"} and job.file_path:
+                    protected.add(job.file_path)
+        return protected
+
 
 DOWNLOAD_TRACKER = DownloadTracker()

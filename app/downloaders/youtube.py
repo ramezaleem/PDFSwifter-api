@@ -7,7 +7,7 @@ from urllib.parse import unquote
 
 import httpx
 
-from app.config import DOWNLOAD_FOLDER, YOUTUBE_REMOTE_ENDPOINT
+from app.config import DOWNLOAD_FOLDER, DOWNLOAD_RETENTION_SECONDS, YOUTUBE_REMOTE_ENDPOINT
 from app.downloaders.common import download_video
 from app.services.download_tracker import DOWNLOAD_TRACKER
 from app.utils.file_ops import delete_file_later
@@ -105,7 +105,7 @@ class RemoteYouTubeDownloader(BaseYouTubeDownloader):
             file_path=file_path,
             suggested_name=remote_name or filename,
         )
-        delete_file_later(file_path, delay=600)
+        delete_file_later(file_path, delay=DOWNLOAD_RETENTION_SECONDS)
 
 
 class LocalYouTubeDownloader(BaseYouTubeDownloader):
@@ -152,7 +152,7 @@ class LocalYouTubeDownloader(BaseYouTubeDownloader):
             file_path=file_path,
             suggested_name=os.path.basename(file_path),
         )
-        delete_file_later(file_path, delay=600)
+        delete_file_later(file_path, delay=DOWNLOAD_RETENTION_SECONDS)
 
 
 def build_youtube_downloader() -> BaseYouTubeDownloader:

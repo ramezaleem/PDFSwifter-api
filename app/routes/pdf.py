@@ -10,6 +10,8 @@ from app.config import (
     EXCEL_DOWNLOAD_FOLDER,
     IMAGE_DOWNLOAD_FOLDER,
     PDF_DOWNLOAD_FOLDER,
+    DOWNLOAD_RETENTION_SECONDS,
+    UPLOAD_RETENTION_SECONDS,
     WORD_DOWNLOAD_FOLDER,
 )
 from app.utils.file_ops import (
@@ -44,16 +46,16 @@ async def pdf_to_excel(file: UploadFile = File(...)):
     except ValueError as e:
         if os.path.exists(excel_path):
             os.remove(excel_path)
-        delete_file_later(pdf_path)
+        delete_file_later(pdf_path, delay=UPLOAD_RETENTION_SECONDS)
         return {"error": str(e)}
     except Exception as e:
         if os.path.exists(excel_path):
             os.remove(excel_path)
-        delete_file_later(pdf_path)
+        delete_file_later(pdf_path, delay=UPLOAD_RETENTION_SECONDS)
         return {"error": f"Failed to convert PDF: {str(e)}"}
 
-    delete_file_later(pdf_path)
-    delete_file_later(excel_path, delay=600)
+    delete_file_later(pdf_path, delay=UPLOAD_RETENTION_SECONDS)
+    delete_file_later(excel_path, delay=DOWNLOAD_RETENTION_SECONDS)
 
     safe_filename = ascii_filename(os.path.basename(excel_path))
     headers = {"Content-Disposition": f'attachment; filename="{safe_filename}"'}
@@ -77,11 +79,11 @@ async def pdf_to_word(file: UploadFile = File(...)):
     except Exception as e:
         if os.path.exists(word_path):
             os.remove(word_path)
-        delete_file_later(pdf_path)
+        delete_file_later(pdf_path, delay=UPLOAD_RETENTION_SECONDS)
         return {"error": f"Failed to convert PDF: {str(e)}"}
 
-    delete_file_later(pdf_path)
-    delete_file_later(word_path, delay=600)
+    delete_file_later(pdf_path, delay=UPLOAD_RETENTION_SECONDS)
+    delete_file_later(word_path, delay=DOWNLOAD_RETENTION_SECONDS)
 
     safe_filename = ascii_filename(os.path.basename(word_path))
     headers = {"Content-Disposition": f'attachment; filename="{safe_filename}"'}
@@ -109,18 +111,18 @@ async def pdf_to_image(file: UploadFile = File(...)):
         shutil.rmtree(session_folder, ignore_errors=True)
         if os.path.exists(zip_path):
             os.remove(zip_path)
-        delete_file_later(pdf_path)
+        delete_file_later(pdf_path, delay=UPLOAD_RETENTION_SECONDS)
         return {"error": str(e)}
     except Exception as e:
         shutil.rmtree(session_folder, ignore_errors=True)
         if os.path.exists(zip_path):
             os.remove(zip_path)
-        delete_file_later(pdf_path)
+        delete_file_later(pdf_path, delay=UPLOAD_RETENTION_SECONDS)
         return {"error": f"Failed to convert PDF: {str(e)}"}
 
     shutil.rmtree(session_folder, ignore_errors=True)
-    delete_file_later(pdf_path)
-    delete_file_later(zip_path, delay=600)
+    delete_file_later(pdf_path, delay=UPLOAD_RETENTION_SECONDS)
+    delete_file_later(zip_path, delay=DOWNLOAD_RETENTION_SECONDS)
 
     safe_filename = ascii_filename(os.path.basename(zip_path))
     headers = {"Content-Disposition": f'attachment; filename="{safe_filename}"'}
