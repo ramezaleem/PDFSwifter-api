@@ -7,7 +7,11 @@ from app.routes.pdf import router as pdf_router
 
 API_PREFIX = "/tools"
 
-app = FastAPI()
+app = FastAPI(
+    openapi_url=f"{API_PREFIX}/openapi.json",
+    docs_url=f"{API_PREFIX}/docs",
+    redoc_url=f"{API_PREFIX}/redoc",
+)
 
 app.include_router(youtube_router, prefix=API_PREFIX)
 app.include_router(tiktok_router, prefix=API_PREFIX)
