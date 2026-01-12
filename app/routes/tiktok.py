@@ -4,6 +4,7 @@ import os
 from fastapi import APIRouter
 
 from app.config import DOWNLOAD_FOLDER
+from app.config import DOWNLOAD_RETENTION_SECONDS
 from app.downloaders.common import download_video
 from app.services.download_tracker import DOWNLOAD_TRACKER
 from app.utils.file_ops import delete_file_later
@@ -66,7 +67,7 @@ async def request_tiktok_download(url: str):
             file_path=filename,
             suggested_name=os.path.basename(filename),
         )
-        delete_file_later(filename, delay=600)
+        delete_file_later(filename, delay=DOWNLOAD_RETENTION_SECONDS)
 
     asyncio.create_task(runner())
     return {"process_id": job.process_id}
